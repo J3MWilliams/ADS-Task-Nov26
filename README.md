@@ -5,36 +5,43 @@ Roche-ADS_Task/
 ├── README.md
 │
 ├── question_1_R_package_development/
-├── README.md
 │   └── descriptiveStats/
 │       ├── DESCRIPTION
 │       ├── NAMESPACE
 │       ├── R/
-│       │   └── [R function files]
+│       │   └── R function files
 │       ├── man/
-│       │   └── [Roxygen2 documentation]
+│       │   └── Roxygen2 documentation
 │       └── tests/
 │           └── testthat/
-│               └── test-calc_mean.R
+│               └── R function test files
 │
 ├── question_2_sdtm/
+│   ├── sdtm_ct.csv
 │   └── 02_create_ds_domain.R
 │
 ├── question_4_tlg/
-│   ├── [AE summary table script]
-│   ├── [AE visualisation script]
-│   ├── [AE listing script]
-│   └── [Generated HTML and PNG outputs]
+│   ├── 01_create_ae_summary_table.R
+│   ├── 02_create_visualizations.R
+│   ├── 03_create_listings.R
+│   ├── ae_listings.html
+│   ├── ae_summary_table.html
+│   ├── plot_1.png
+│   └── plot_2.png
 │
-└── question_6_clinical_data_assistant/
-    ├── [Clinical data agent implementation]
-    └── tests/
+├── question_6_clinical_data_assistant/
+│   ├── requirements.txt
+│   ├── data/
+│   │   └── adae.csv
+│   ├── src/
+│   │   └── clinical_agent.py
+│   └── tests/
         └── test_clinical_agent.py
 ```
 
 # Question 1
 
-### descriptiveStats Package
+## descriptiveStats Package
 The descriptiveStats package provides simple functions for calculating common descriptive statistics from numeric vectors in R.
 
 The package includes functions to calculate:
@@ -449,7 +456,7 @@ calc_iqr(5)
 ```
 
 # Question 2
-## SDTM Creation – Disposition (DS) Domain
+## SDTM Creation – DS Domain
 
 This R programme creates the SDTM Disposition (DS) domain using raw disposition data from the `pharmaverseraw` package.
 
