@@ -659,111 +659,56 @@ Creates a detailed listing of treatment-emergent adverse events.
 
 **Output:** `ae_listings.html`
 
-## Folder Structure
-
-```text
-question_4_tlg/
-│
-├── 01_create_ae_summary_table.R
-├── 02_create_visualizations.R
-├── 03_create_listings.R
-│
-├── ae_summary_table.html
-├── ae_listings.html
-├── plt_1.png
-└── plt_2.png
-```
-
-**Question:** 4 – TLG: Adverse Events Reporting
-
-**Scripts:** 3 R scripts  
-**Deliverables:** 1 HTML summary table, 2 PNG visualizations, and 1 HTML listing.
-
 # Question 6
 
-# Question 6: Clinical Trial Data Assistant
+## Clinical Trial Data Assistant
 
-## 1. Objective
+The Clinical Trial Data Assistant uses Generative AI to translate natural language questions into structured queries against clinical trial Adverse Events (AE) data.
 
-Develop a Generative AI-powered Clinical Trial Data Assistant that translates natural language questions into structured Pandas queries.
+The application enables clinical safety reviewers to retrieve relevant adverse event records without needing to know the underlying dataset variable names.
 
-The assistant enables clinical safety reviewers to query Adverse Events (AE) clinical trial data using natural language without needing to know the underlying dataset column names.
+The solution uses a Large Language Model (LLM) to interpret user questions, identify the appropriate dataset variable, extract the requested filter value, and generate structured JSON output. The JSON response is validated and executed against the clinical dataset using Pandas.
 
-The solution uses a Large Language Model (LLM) to understand user intent, identify the relevant dataset variable, extract the requested filter value, and generate structured JSON output that is subsequently executed against the clinical dataset using Pandas.
+## Requirements
 
-## 2. Scenario
+### Input Data
 
-A clinical safety reviewer wants to ask free-text questions about the Adverse Events (AE) dataset.
+- `adae.csv` – Clinical trial Adverse Events dataset.
+- Dataset schema and data dictionary – Provided to the LLM to support variable identification.
 
-The reviewer may not know the technical variable names used in the dataset. The assistant must understand the question and dynamically identify the appropriate variable based on the dataset schema.
+### Python Packages
 
-Examples:
+- `pandas`
+- `langchain`
+- `openai`
+- `python-dotenv`
 
-| Natural Language Query | Target Column | Filter Value |
-|---|---|---|
-| Show me all severe adverse events | `AESEV` | Severe |
-| Find patients who experienced Headache | `AETERM` | Headache |
-| Show adverse events related to Cardiac conditions | `AESOC` | Cardiac |
+## Application Workflow
 
-The mapping must be performed through LLM-based interpretation rather than hard-coded keyword rules.
+The application follows a three-stage workflow: Prompt, Parse and Execute.
 
-## 3. Dataset
+### Prompt
 
-**Input file:** `adae.csv`
-
-**Source:** `pharmaversesdtm::ae`
-
-The dataset contains clinical trial adverse event information.
-
-The data dictionary is provided to the LLM to support accurate identification of the relevant variables.
-
-## 4. Project Structure
-
-```text
-Question-6-Clinical-Data-Assistant/
-│
-├── requirements.txt
-│
-├── data/
-│   └── adae.csv
-│
-├── src/
-│   └── clinical_agent.py
-│
-└── tests/
-    └── test_clinical_agent.py
-```
-
-## 5. Solution Architecture
-
-The application follows a three-stage workflow:
-
-### Stage 1: Prompt
-
-The user submits a natural language question.
+The user submits a natural language question about the Adverse Events dataset.
 
 Examples:
+
 - Give me all severe adverse events.
 - Find subjects who experienced Headache.
 - Show me adverse events associated with Cardiac conditions.
 
-The agent provides the LLM with:
-- The user's question.
-- The clinical dataset schema.
-- Instructions for identifying the correct target column.
-- Instructions to extract the filter value.
-- A requirement to return structured JSON.
+The LLM receives the user's question, the clinical dataset schema and instructions to identify the relevant target column and filter value.
 
-### Stage 2: Parse
+### Parse
 
-The LLM interprets the question and generates a structured JSON response.
+The LLM interprets the question and generates a structured JSON response containing the target dataset column and requested filter value.
 
-Expected JSON structure:
+**Example:**
 
 ```json
 {
-    "target_column": "AESEV",
-    "filter_value": "Severe"
+"target_column": "AESEV",
+"filter_value": "Severe"
 }
 ```
 
@@ -771,64 +716,34 @@ Another example:
 
 ```json
 {
-    "target_column": "AETERM",
-    "filter_value": "Headache"
+"target_column": "AETERM",
+"filter_value": "Headache"
 }
 ```
 
-The agent validates the generated output before executing the query.
+The generated response is validated to ensure that the target column exists in the dataset and that the response contains the required information.
 
-### Stage 3: Execute
+### Execute
 
-The structured JSON response is passed to the Pandas execution function.
+The validated JSON response is passed to a Pandas execution function.
 
 The function:
-1. Identifies the target column.
-2. Applies the requested filter to the AE dataframe.
-3. Retrieves matching adverse event records.
-4. Counts the unique subjects using `USUBJID`.
-5. Returns the unique subject count and matching subject IDs.
 
-The overall workflow is:
+- Identifies the target column.
+- Applies the requested filter to the AE dataset.
+- Retrieves matching adverse event records.
+- Calculates the number of unique subjects using `USUBJID`.
+- Returns the unique subject count and matching subject IDs.
 
-```text
-User Natural Language Question
-              |
-              v
-       LLM Prompt
-              |
-              v
-     Dataset Schema
-              |
-              v
-       LLM Parsing
-              |
-              v
-    Structured JSON Output
-              |
-              v
-      JSON Validation
-              |
-              v
-      Pandas Filtering
-              |
-              v
-    Matching AE Records
-              |
-              v
-    Unique Subject Count
-              |
-              v
-       Matching IDs
-```
+The variable mapping is performed dynamically through LLM interpretation rather than hard-coded keyword rules.
 
-## 6. Implementation
+## Implementation
 
 ### Main Application
 
 **File:** `src/clinical_agent.py`
 
-The main application implements the `ClinicalTrialDataAgent` class.
+The application implements the `ClinicalTrialDataAgent` class.
 
 Its responsibilities include:
 
@@ -843,110 +758,41 @@ Its responsibilities include:
 
 ### LLM Integration
 
-The application can use an OpenAI model through LangChain or an alternative LLM solution.
+The application supports integration with an OpenAI model through LangChain or an alternative LLM solution.
 
-An API key can be configured through an environment variable.
+An API key can be configured using an environment variable.
 
 If an API key is unavailable, a mocked LLM response can be used to demonstrate the complete workflow:
 
 **Prompt → Parse → Execute**
 
-The mocked implementation should preserve the same structured JSON interface as the actual LLM implementation.
+The mocked implementation uses the same structured JSON interface as the actual LLM implementation.
 
-## 7. Installation and Setup
-
-### Step 1: Clone the Repository
-
-```bash
-git clone <repository-url>
-cd Question-6-Clinical-Data-Assistant
-```
-
-### Step 2: Create a Virtual Environment
-
-```bash
-python -m venv venv
-```
-
-Activate the environment.
-
-**Windows:**
-
-```bash
-venv\Scripts\activate
-```
-
-**macOS/Linux:**
-
-```bash
-source venv/bin/activate
-```
-
-### Step 3: Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### Step 4: Configure API Key (If Using OpenAI)
-
-Set the OpenAI API key as an environment variable.
-
-**Windows PowerShell:**
-
-```powershell
-$env:OPENAI_API_KEY="your-api-key"
-```
-
-**macOS/Linux:**
-
-```bash
-export OPENAI_API_KEY="your-api-key"
-```
-
-If using a mocked LLM implementation, an API key is not required.
-
-## 8. Running the Application
-
-From the project root directory, execute:
-
-```bash
-python src/clinical_agent.py
-```
-
-Ensure the `adae.csv` file is available in the `data/` directory.
-
-## 9. Testing
+## Testing
 
 **Test file:** `tests/test_clinical_agent.py`
 
-The test script demonstrates the assistant using three example natural language queries.
+The test script demonstrates the assistant using example natural language queries:
 
-Example queries:
+- Give me all severe adverse events.
+- Find patients who experienced Headache.
+- Show me adverse events associated with Cardiac conditions.
 
-1. "Give me all severe adverse events."
-2. "Find patients who experienced Headache."
-3. "Show me adverse events associated with Cardiac conditions."
+For each query, the application:
 
-For each query, the application should:
+- Interprets the natural language question.
+- Identifies the appropriate target column.
+- Extracts the filter value.
+- Generates structured JSON output.
+- Executes the corresponding Pandas filter.
+- Returns the number of unique subjects.
+- Displays the matching subject IDs.
 
-- Interpret the natural language question.
-- Identify the appropriate target column.
-- Extract the filter value.
-- Generate structured JSON output.
-- Execute the corresponding Pandas filter.
-- Return the number of unique subjects.
-- Display the matching subject IDs.
+## Expected Output
 
-### Run the Test Script
+For each query, the application displays the original user question, the structured LLM response and the execution results.
 
-```bash
-python tests/test_clinical_agent.py
-```
-
-## 10. Expected Output
-
-The output for each query should include:
+**Example:**
 
 ```text
 User Question:
@@ -954,8 +800,8 @@ Give me all severe adverse events.
 
 LLM Structured Output:
 {
-    "target_column": "AESEV",
-    "filter_value": "Severe"
+"target_column": "AESEV",
+"filter_value": "Severe"
 }
 
 Execution Results:
@@ -965,33 +811,40 @@ Matching Subject IDs:
 <list of matching USUBJID values>
 ```
 
-The actual counts and subject IDs are calculated dynamically from the supplied dataset.
-## 11. Design Considerations
+The subject counts and IDs are calculated dynamically from the supplied dataset.
 
-- The assistant should dynamically identify dataset variables using the LLM rather than relying on hard-coded keyword mappings.
+## Design Considerations
+
+- Dataset variables must be identified dynamically using the LLM rather than hard-coded keyword mappings.
 - Only valid dataset columns should be accepted as target columns.
-- Invalid or incomplete LLM responses should be handled appropriately.
-- Subject counts should use unique `USUBJID` values to avoid duplicate subject counting.
+- Invalid or incomplete LLM responses must be handled appropriately.
+- Unique `USUBJID` values must be used to avoid duplicate subject counting.
 - The solution should support both actual LLM integration and mocked LLM responses.
 - Clinical data outputs should be validated before being used in clinical or regulatory decision-making.
 
-## 12. Deliverables
+## Deliverables
 
 The project includes the following deliverables:
 
-1. **Solution Code:** `src/clinical_agent.py`
-   - Implements the ClinicalTrialDataAgent.
-   - Handles LLM prompting and structured JSON parsing.
-   - Executes Pandas filters against the ADAE dataset.
-   - Returns unique subject counts and matching IDs.
+**Main Application:** `src/clinical_agent.py`
 
-2. **Test Script:** `tests/test_clinical_agent.py`
-   - Executes three example natural language queries.
-   - Demonstrates the Prompt → Parse → Execute workflow.
-   - Prints the results for each query.
+- Implements the ClinicalTrialDataAgent.
+- Handles LLM prompting and structured JSON parsing.
+- Executes Pandas filters against the ADAE dataset.
+- Returns unique subject counts and matching subject IDs.
 
-3. **Dependencies:** `requirements.txt`
-   - Lists the Python packages required to run the application.
+**Test Script:** `tests/test_clinical_agent.py`
 
-4. **Dataset:** `data/adae.csv`
-   - Contains the clinical adverse events data used for analysis.
+- Executes example natural language queries.
+- Demonstrates the Prompt → Parse → Execute workflow.
+- Displays the results for each query.
+
+**Dependencies:** `requirements.txt`
+
+- Lists the Python packages required to run the application.
+
+**Dataset:** `data/adae.csv`
+
+- Contains the clinical adverse events data used for analysis.
+
+**Output:** Clinical Trial Data Assistant with natural language querying capabilities.
