@@ -1,1 +1,10 @@
 # Roche-ADS-Task
+
+
+## Question 1
+
+## Question 2
+
+## Question 4
+
+## Question 6
